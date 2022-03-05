@@ -1,7 +1,3 @@
-[submodule "godot-cpp"]
-	path = godot-cpp
-	url = https://github.com/godotengine/godot-cpp
-	branch = 3.x
 [submodule "openmpt"]
 	path = openmpt
 	url = https://github.com/piptouque/openmpt.git
