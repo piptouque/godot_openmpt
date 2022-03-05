@@ -5,6 +5,3 @@
 [submodule "openmpt"]
 	path = openmpt
 	url = https://github.com/piptouque/openmpt.git
-[submodule "modules"]
-	path = modules
-	url = https://github.com/piptouque/pip_templates.git
