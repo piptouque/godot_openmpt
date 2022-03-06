@@ -2,6 +2,7 @@
 # piptouque
 build/
 bin/
+.env
 
 # from github/gitignore
 

@@ -1,3 +1,6 @@
 [submodule "openmpt"]
 	path = openmpt
 	url = https://github.com/piptouque/openmpt.git
+[submodule "godot"]
+	path = godot
+	url = https://github.com/piptouque/godot.git
