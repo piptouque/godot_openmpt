@@ -1,0 +1,11 @@
+{
+    "python.formatting.provider": "black",
+    "files.associations": {
+        "mutex": "cpp",
+        "shared_mutex": "cpp",
+        "memory": "cpp",
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "cstddef": "cpp"
+    }
+}

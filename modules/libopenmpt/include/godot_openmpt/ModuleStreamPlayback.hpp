@@ -3,18 +3,20 @@
 #ifndef GODOT_OPENMPT_MPTAUDIOSTREAMPLAYBACK_HPP
 #define GODOT_OPENMPT_MPTAUDIOSTREAMPLAYBACK_HPP
 
-#include "MptAudioStream.hpp"
+#include <core/reference.h>
 
 namespace godot
 {
-    class MptAudioStreamPlayback : public AudioStreamPlayback
+    class ModuleStream;
+
+    class ModuleStreamPlayback : public AudioStreamPlayback
     {
-        GDCLASS(MptAudioStreamPlayback, AudioStreamPlayback)
+        GDCLASS(ModuleStreamPlayback, AudioStreamPlayback)
         friend class MptAudioStream;
 
        public:
-        MptAudioStreamPlayback();
-        ~MptAudioStreamPlayback();
+        ModuleStreamPlayback();
+        ~ModuleStreamPlayback();
 
         void
           start(float p_from_pos = 0.0) override;
@@ -31,12 +33,21 @@ namespace godot
         void
           mix(AudioFrame * p_buffer, float p_rate_scale, int p_frames) override;
         [[nodiscard]] float
-          get_length() const override;
+          get_length() const;
 
        private:
-        void *              pcm_buffer;
-        Ref<MptAudioStream> base;
-        bool                active;
+        // consts and structs
+        constexpr static int C_PCM_BUFFER_MAX_SIZE = 4096;
+        enum
+        {
+            E_MIX_FRAC_BITS = 13,
+            E_MIX_FRAC_LEN  = (1 << E_MIX_FRAC_BITS),
+            E_MIX_FRAC_MASK = E_MIX_FRAC_LEN - 1
+        };
+
+        Ref<ModuleStream> m_base;
+        void *            m_pcm_buffer;
+        bool              m_active;
     }
 }  // namespace godot
 

@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.12)
 
 project(godot-openmpt CXX)
 
+# BUILD CONFIG
+include(ProcessorCount)
+ProcessorCount(NB_PROCESSORS)
+
+set(GODOT_BUILD_CORES ${NB_PROCESSORS})
+set(GODOT_BUILD_PLATFORM "x11")
+# include(SetProjectFlags)
+
 # set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules/cmake)
 set(GODOT_MODULE_DIR ${PROJECT_SOURCE_DIR}/modules/)
 
@@ -16,30 +24,36 @@ set(GODOT_SOURCE_DIR ${GODOT_DIR})
 set(GODOT_INCLUDE_DIR ${GODOT_DIR})
 set(GODOT_GDNATIVE_INCLUDE_DIR ${GODOT_GDNATIVE_DIR}/include)
 #
+set(GODOT_PLATFORM_INCLUDE_DIR ${GODOT_DIR}/platform/${GODOT_BUILD_PLATFORM})
+#
+set(GODOT_INCLUDE_DIRS
+        ${GODOT_INCLUDE_DIR}
+        ${GODOT_GDNATIVE_INCLUDE_DIR}
+        # fix: Added for Intellisense
+        ${GODOT_PLATFORM_INCLUDE_DIR}
+        ${GODOT_DIR}
+)
+#
 # OPENMPT
 set(OPENMPT_DIR ${PROJECT_SOURCE_DIR}/openmpt)
 
-# BUILD CONFIG
-include(ProcessorCount)
-ProcessorCount(NB_PROCESSORS)
 
-set(GODOT_BUILD_CORES ${NB_PROCESSORS})
-set(GODOT_BUILD_PLATFORM x11)
-#
-# include(SetProjectFlags)
 
 # subdirs
-# add_subdirectory(${GODOT_CPP_DIR})
 add_subdirectory(${OPENMPT_DIR})
 
 set(GODOT_OPENMPT_SOURCE_FILES
         ## source
-        ${GODOT_OPENMPT_SOURCE_DIR}/MptAudioStream.cpp
-        ${GODOT_OPENMPT_SOURCE_DIR}/MptAudioStreamPlayback.cpp
+        ${GODOT_OPENMPT_SOURCE_DIR}/godot_openmpt/Module.cpp
+        ${GODOT_OPENMPT_SOURCE_DIR}/godot_openmpt/ModuleStream.cpp
+        ${GODOT_OPENMPT_SOURCE_DIR}/godot_openmpt/ModuleStreamPlayback.cpp
+        ${GODOT_OPENMPT_DIR}/register_types.cpp
 )
 set(GODOT_OPENMPT_INCLUDE_FILES
-        ${GODOT_OPENMPT_INCLUDE_DIR}/MptAudioStream.hpp
-        ${GODOT_OPENMPT_INCLUDE_DIR}/MptAudioStreamPlayback.hpp
+        ${GODOT_OPENMPT_INCLUDE_DIR}/godot_openmpt/Module.hpp
+        ${GODOT_OPENMPT_INCLUDE_DIR}/godot_openmpt/ModuleStream.hpp
+        ${GODOT_OPENMPT_INCLUDE_DIR}/godot_openmpt/ModuleStreamPlayback.hpp
+        ${GODOT_OPENMPT_DIR}/register_types.hpp
 )
 
 # add_library(${PROJECT_NAME} STATIC ${GODOT_OPENMPT_FILES})
@@ -64,7 +78,11 @@ endif(NOT SCONS_PROGRAMME)
 add_custom_target(godot_scons
         ALL
         WORKING_DIRECTORY ${GODOT_DIR}
-        COMMAND ${SCONS_PROGRAMME} custom_modules=${GODOT_MODULE_DIR} -j ${GODOT_BUILD_CORES} platform=${GODOT_BUILD_PLATFORM}
+        COMMAND ${SCONS_PROGRAMME}
+                custom_modules=${GODOT_MODULE_DIR}
+                -j ${GODOT_BUILD_CORES}
+                platform=${GODOT_BUILD_PLATFORM}
+                libopenmpt_shared=no
         SOURCES ${GODOT_SOURCE_FILES} ${GODOT_INCLUDE_FILES} 
         USES_TERMINAL
 )
@@ -78,10 +96,10 @@ add_executable(godot EXCLUDE_FROM_ALL
         )
 
 target_include_directories(godot SYSTEM PUBLIC
-        ${GODOT_INCLUDE_DIR}
-        ${GODOT_GDNATIVE_INCLUDE_DIR}
+        ${GODOT_INCLUDE_DIRS}
         ${GODOT_OPENMPT_INCLUDE_DIR}
-
 )
+
+target_compile_features(godot PRIVATE cxx_std_20)
 
 target_link_libraries(godot PUBLIC libopenmpt)
